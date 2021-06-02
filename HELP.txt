@@ -1,0 +1,12 @@
+########## RedBot Help Info ##########
+ "!redBot help" brings up the help info.
+ "!timmers" shows the spawn time for bosses
+ "!BOSS_NAME EXTRA_INFO" will post on boss channel that the boss is dead with the current time.
+		BOSS_NAME = replace with boss name that just dies eg:zaken.
+		EXTRA_INFO = replace with extra info, like if it droped something and what clan killed it.
+		Example: !aq NODROP MostHated
+		Result: AQ [DEAD] - 27/05 12:02 (UTC) NODROP MostHated
+
+ More shit coming soon...Have suggestions?
+
+ Having issues? Contact RedSpark
