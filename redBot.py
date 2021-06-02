@@ -5,6 +5,7 @@ import random
 from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
+from enum import Enum
 
 BOT_NAME = "RedBot"
 VERSION = "v1.3.2"
@@ -16,17 +17,10 @@ bot.remove_command('help')
 
 TOKEN = os.environ.get("RED_BOT_DC_KEY")
 
-ALLIANCE = {"NewOrder": -1, "MostHated": -1, "Lineage II - Reborn": -1}  # REAL
+
+ALLIANCES = []
 DO_WELCOME_MESSAGE = False
-BOT_CHANNEL = "welcome"
 
-
-
-LOG_SERVER_NAME = "Red_Spark's server"
-LOG_CHANNEL_NAME = "redbot_log"
-LOG_SERVER = {LOG_SERVER_NAME: -1, LOG_CHANNEL_NAME: -1}
-
-#ALLIANCE = {"Red_Spark's server": -1, "Red_Spark's 2 server": -1}  # TESTING
 
 BOSS_TIMMERS = {
     'qa': [24, 6, 'QA'],
@@ -38,16 +32,50 @@ BOSS_TIMMERS = {
 }
 
 
-async def log(message):
-    print("BOT_LOG:"+message)
-    #channel = bot.get_channel(LOG_SERVER.get(LOG_CHANNEL_NAME))
-    #await channel.send(message)
+class LOG_TYPE(Enum):
+    INFO = "Info"
+    WARNING = "Warning"
+    ERROR = "Error"
+
+
+async def log(message, log_type: LOG_TYPE):
+    print(log_type+":"+message)
+
+
+def loadAllyData():
+    try:
+        f = open("ALLIANCES.txt", "r")
+        lines = f.readlines()
+        for line in lines:
+            if line.startswith("#") or line.strip() == "":
+                continue
+            line = line.split("=")
+            ally_name = line[0]
+            line = line[1].split("+")
+            temp_guilds = {}
+            for guild in line:
+                temp_guilds.update({guild.strip(" \"\n"): -1})
+            tempAlly = {ally_name: temp_guilds}
+            global ALLIANCES
+            ALLIANCES.append(tempAlly)
+
+    except OSError:
+        log("ALLIANCES.txt load fail", LOG_TYPE.ERROR)
+
+
+def loadHelpFile() -> str:
+    try:
+        f = open("HELP.txt", "r")
+        return f.read()
+    except OSError:
+        return "Sorry failed to load help info, please contact %s" % AUTHOR
+
 
 
 @bot.event
 async def on_ready():
-    s3 = os.environ.get("TEST")
-    print("var:"+str(s3))
+    loadAllyData()
+    print(str(ALLIANCES))
     BOT_WELCOME_MSG = "%s %s is back up!\nIf you need help do !redBot help.\nHave questions?Feel free to contact %s" % \
                       (BOT_NAME, VERSION, AUTHOR)
     # finding log server first
@@ -78,12 +106,6 @@ async def on_ready():
     await log("TOTAL APPROVED GUILDS:" + str(len(ALLIANCE)))
 
 
-def loadHelpFile() -> str:
-    try:
-        f = open("HELP.txt", "r")
-        return f.read()
-    except OSError:
-        return "Sorry failed to load help info, please contact %s" % AUTHOR
 
 
 @bot.command()
